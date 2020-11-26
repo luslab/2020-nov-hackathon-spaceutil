@@ -24,6 +24,7 @@ def luslab_du(ack, say, command):
     else:
       du_message = ("Invalid argument. Should be either \"all\" or " +
         "\n".join([key for key in du_table]))
+    du_message = "/luslab-du " + command_arg + "\n" + du_message
     say(f"{du_message}")
 
 @app.event("app_home_opened")
