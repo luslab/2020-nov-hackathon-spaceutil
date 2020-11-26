@@ -11,7 +11,7 @@ class Scanner:
         # Init
         self.logger = logger
 
-    def scan(self, scan_path, output_path, ignore_hidden, set_name):
+    def scan(self, scan_path, ignore_hidden, set_name):
         # Source data downloader
         self.logger.info('Scanning ' + scan_path)
 
@@ -32,8 +32,5 @@ class Scanner:
         df['scantime'] = timestamp.strftime("%Y-%m-%d-%H:%M:%S")
         df['elapsed'] = elapsed
         df['setname'] = set_name
-
-        # Output to file
-        df.to_csv(output_path, index=False)
 
         return df

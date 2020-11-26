@@ -3,30 +3,29 @@
 
 import numpy as np
 import pandas as pd
-import couchdb
+from cloudant import couchdb
+from cloudant.view import View
 from uuid import uuid4
 
 class Database:
     def __init__(self, url, username, password, database, logger):
         # Init
         self.logger = logger
-        connect_string = 'http://' + username + ':' + password + '@' + url + '/'
+        self.url = url
+        self.usr = username
+        self.pw = password
+        self.db = database
 
-        # Log
-        logger.info('Connecting to {0}'.format(connect_string))
+    def create_frame(self, docs):
+        df = pd.DataFrame(columns=['_id','_rev','scan_id','path','file_name','size','is_folder','depth','parent','md5','scan_time','elapsed','set_name'])
+        for doc in docs:
+            df = df.append(doc, ignore_index=True)
 
-        # Connect to db
-        self.server = couchdb.Server(connect_string)
-        self.db = self.server[database]
+        return df
 
     def test_connection(self):
-        self.logger.info('CouchDB version {0}'.format(self.server.version()))
-
-        self.get_size_summary()
-        #df.info()
-
-        # for id in self.db:
-        #     print(id)
+        with couchdb(self.usr, self.pw, url=self.url) as client:
+            print(client.all_dbs())
 
     def upload_scan(self, data):
         self.logger.info('Uploading data...')
@@ -51,13 +50,27 @@ class Database:
             self.db.save(doc)
 
     def get_size_summary(self):
+        # Get connection and db
+        with couchdb(self.usr, self.pw, url=self.url) as client:
+            db = client[self.db]
 
-        for item in self.db.view('_design/main'):
-            print(item)
+            selector = {'is_folder': {'$eq': True}}
+            docs = db.get_query_result(selector)
 
+            df = self.create_frame(docs)
 
-        # map_fun = '''function(doc) {
-        #                 if(doc.date && doc.title) {
-        #                     emit(doc.date, doc.title);
-        #                 }
-        #             }'''
+        return df
+
+# '_id': 'd7f49ca6c92a49128f00c89558cb065c',
+# '_rev': '1-ab43f47b524c0ed9cf5bbddbfb2f54e9',
+# 'scan_id': 29,
+# 'path': '/Users/cheshic/dev/repos/TOBIAS/tobias/__init__.py',
+# 'file_name': '__init__',
+# 'size': 23,
+# 'is_folder': False, 
+# 'depth': 1,
+# 'parent': 4,
+# 'md5': '0ab6e1ae54ddc1cb0d9c3e42549b1ce4', 
+# 'scan_time': '2020-11-26-15:40:17', 
+# 'elapsed': '00:00:00',
+# 'set_name': 'no-name'
