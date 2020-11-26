@@ -17,6 +17,22 @@ def sizeof_fmt(num, suffix='B'):
     num /= 1024.0
   return "%.1f%s%s" % (num, 'Y', suffix)
 
+def align_first_col(du_message):
+  max_len = 0
+  du_message_rows = du_message.split("\n")
+  for line in du_message_rows:
+    current_len = len(line.split("\t")[0])
+    if current_len > max_len:
+      max_len = current_len
+  aligned_row_list = []
+  for line in du_message_rows:
+    first_col = line.split("\t")[0]
+    second_col = line.split("\t")[1]
+    new_firs_col = " " * (max_len - len(first_col)) + first_col
+    aligned_row_list.append(new_firs_col + "\t" + second_col)
+  aligned_du_message = "\n".join(aligned_row_list)
+  return(aligned_du_message)
+
 def read_data_frame():
   return(pd.read_csv("test_data/test-set-2.csv"))
 
