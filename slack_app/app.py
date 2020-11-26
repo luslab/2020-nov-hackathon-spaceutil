@@ -9,19 +9,10 @@ app = App(
 
 # Handling events
 
-#TEMPORARY FUNCTION
-def get_du_table():
-  return_dict = {}
-  with open("test_data/du.out", "r") as du_in:
-    for line in du_in:
-      row = line.strip().split()
-      return_dict[row[-1].replace("./", "")] = float(row[0])
-  return(return_dict)
-
 @app.command("/luslab-du")
 def luslab_du(ack, say, command):
     ack()
-    du_table = get_du_table()
+    du_table = table_utils.get_du_table()
     command_arg = command["text"]
     if command_arg == "all" or command_arg == "all bysize":
       du_message = "\n".join([str(t[0]) + "\t" + t[1] for t in sorted([(du_table[key], key) for key in du_table], reverse=True)]) 
