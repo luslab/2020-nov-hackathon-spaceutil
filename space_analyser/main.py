@@ -47,10 +47,10 @@ if __name__ == '__main__':
     df = folderstats.folderstats(scan_path, logger, hash_name='md5', ignore_hidden=ignore_hidden)
 
     # Annotate table
-    df['runtime'] = timestamp
+    df['runtime'] = timestamp.strftime("%Y-%m-%d-%H:%M:%S")
     df['setname'] = set_name
 
     # Output to file
-    df.to_csv(output_path)
+    df.to_csv(output_path, index=False)
 
     sys.exit
