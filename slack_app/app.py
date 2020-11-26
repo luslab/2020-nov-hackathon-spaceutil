@@ -9,11 +9,28 @@ app = App(
 
 # Handling events
 
+#TEMPORARY FUNCTION
+def get_du_table():
+  return_dict = {}
+  with open("test_data/du.out", "r") as du_in:
+    for line in du_in:
+      row = line.strip().split()
+      return_dict[row[-1]] = row[0]
+  return(return_dict)
+
 @app.command("/luslab-du")
 def luslab_du(ack, say, command):
-    # Acknowledge command request
     ack()
-    say(f"{command['text']}")
+    du_table = get_du_table()
+    command_arg = command["text"]
+    if command_arg == "all":
+      say(f"{str(du_table)}")
+    elif command_arg in du_table.keys():
+      say(f"{du_table[command_arg]}")
+    else:
+      return_text = ("Invalid argument. Should be either \"all\" or " +
+        str(du_table.keys()))
+      say(f"{return_text}")
 
 @app.event("app_home_opened")
 def update_home_tab(client, event, logger):
