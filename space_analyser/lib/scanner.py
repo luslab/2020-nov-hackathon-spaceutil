@@ -35,3 +35,5 @@ class Scanner:
 
         # Output to file
         df.to_csv(output_path, index=False)
+
+        return df

@@ -19,7 +19,15 @@ def scan(parsed_args):
     ignore_hidden = parsed_args.ignore_hidden
     output_path = parsed_args.output
     set_name = parsed_args.set_name
+    upload = parsed_args.upload
     log_path = None
+
+    print(upload)
+
+    url = parsed_args.url
+    usr = parsed_args.usr
+    pw = parsed_args.pw
+    db = parsed_args.db
 
     if parsed_args.log:
         log_path = parsed_args.log
@@ -30,18 +38,23 @@ def scan(parsed_args):
 
     # Call the scanner
     s = Scanner(logger)
-    s.scan(scan_path, output_path, ignore_hidden, set_name)
+    df = s.scan(scan_path, output_path, ignore_hidden, set_name)
+
+    if upload == 'true':
+        d = Database(url, usr, pw, db, logger)
+        d.upload_scan(df)
 
 def testdb(args):
     url = parsed_args.url
     usr = parsed_args.usr
     pw = parsed_args.pw
+    db = parsed_args.db
 
     logging.basicConfig(level=os.environ.get("LOGLEVEL", "INFO"))
     logger = logging.getLogger("testdb")
     logger.info('Init')
 
-    d = Database(url, usr, pw, logger)
+    d = Database(url, usr, pw, db, logger)
     d.test_connection()
 
 if __name__ == '__main__':
@@ -59,13 +72,20 @@ if __name__ == '__main__':
     parser_scan.add_argument('--path', required=True)
     parser_scan.add_argument('--output', required=True)
     parser_scan.add_argument('--ignore_hidden', required=False, default=True)
+    parser_scan.add_argument('--upload', required=False, default=False)
     parser_scan.add_argument('--set_name', required=False, default='no-name')
     parser_scan.add_argument('--log', required=False)
+
+    parser_scan.add_argument('--url', required=False)
+    parser_scan.add_argument('--usr', required=False)
+    parser_scan.add_argument('--pw', required=False)
+    parser_scan.add_argument('--db', required=False)
 
     # test-db params
     parser_test_db.add_argument('--url', required=True)
     parser_test_db.add_argument('--usr', required=True)
     parser_test_db.add_argument('--pw', required=True)
+    parser_test_db.add_argument('--db', required=True)
 
     # Parse
     parsed_args = parser.parse_args()
