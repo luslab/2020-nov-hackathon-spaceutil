@@ -3,22 +3,19 @@
 
 import numpy as np
 import pandas as pd
-from cloudant.client import Cloudant
+import couchdb
 
 class Database:
-    def __init__(self, logger=None, url, username, password):
+    def __init__(self, url, username, password, logger):
         # Init
         self.logger = logger
-
-        # Connect to database
-        self.client = Cloudant(username, password, url=url)
-        self.session = client.session()
+        connect_string = 'http://' + username + ':' + password + '@' + url + '/'
 
         # Log
-        logger.info('Username: {0}'.format(session['userCtx']['name'])) if logger
-        logger.info('Databases: {0}'.format(client.all_dbs())) if logger
+        logger.info('Connecting to {0}'.format(connect_string))
 
-    def __del__(self):
-        # Disconnect from the server
-        if self.client:
-            client.disconnect()
+        # Connect to db
+        self.server = couchdb.Server(connect_string)
+
+    def test_connection(self):
+        self.logger.info('CouchDB version {0}'.format(self.server.version()))

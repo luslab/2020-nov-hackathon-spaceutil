@@ -11,9 +11,10 @@ import argparse
 import logging
 
 from lib.scanner import Scanner
+from lib.database import Database
 
 def scan(parsed_args):
-     # Check params
+    # Check params
     scan_path = parsed_args.path
     ignore_hidden = parsed_args.ignore_hidden
     output_path = parsed_args.output
@@ -32,11 +33,16 @@ def scan(parsed_args):
     s.scan(scan_path, output_path, ignore_hidden, set_name)
 
 def testdb(args):
+    url = parsed_args.url
+    usr = parsed_args.usr
+    pw = parsed_args.pw
+
     logging.basicConfig(level=os.environ.get("LOGLEVEL", "INFO"))
     logger = logging.getLogger("testdb")
     logger.info('Init')
 
-    http://127.0.0.1:5984/
+    d = Database(url, usr, pw, logger)
+    d.test_connection()
 
 if __name__ == '__main__':
     # Create command args
