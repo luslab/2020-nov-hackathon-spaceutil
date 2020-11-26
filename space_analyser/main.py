@@ -46,8 +46,16 @@ if __name__ == '__main__':
     # Scan folders
     df = folderstats.folderstats(scan_path, logger, hash_name='md5', ignore_hidden=ignore_hidden)
 
+    # Calc time elapsed
+    time_delta = (datetime.now() - timestamp)
+    total_seconds = time_delta.total_seconds()
+    hours, remainder = divmod(total_seconds, 3600)
+    minutes, seconds = divmod(remainder, 60)
+    elapsed = '{:02}:{:02}:{:02}'.format(int(hours), int(minutes), int(seconds))
+
     # Annotate table
-    df['runtime'] = timestamp.strftime("%Y-%m-%d-%H:%M:%S")
+    df['scantime'] = timestamp.strftime("%Y-%m-%d-%H:%M:%S")
+    df['elapsed'] = elapsed
     df['setname'] = set_name
 
     # Output to file
