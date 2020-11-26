@@ -2,3 +2,4 @@ slack_app/.venv/bin/
 slack_app/.venv/lib/
 slack_app/.venv/include/
 slack_app/__pycache__/
+.DS_Store

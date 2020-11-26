@@ -26,5 +26,5 @@ def get_du_table():
   depth_folder_subset = all_data.loc[all_data.folder].loc[all_data.depth==depth]
   return_dict = {}
   for row_idx in range(len(depth_folder_subset)):
-    return_dict[depth_folder_subset.iloc[row_idx]["name"]] = sizeof_fmt(depth_folder_subset.iloc[row_idx]["size"])
+    return_dict[depth_folder_subset.iloc[row_idx]["name"]] = depth_folder_subset.iloc[row_idx]["size"]
   return(return_dict)
