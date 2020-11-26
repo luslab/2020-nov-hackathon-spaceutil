@@ -13,10 +13,7 @@ from datetime import datetime
 
 import folderstats
 
-#from lib.scanner import Scanner
 
-# Setup logging
-logging.basicConfig(level=os.environ.get("LOGLEVEL", "INFO"))
 
 if __name__ == '__main__':
     # Create args
@@ -25,17 +22,22 @@ if __name__ == '__main__':
     parser.add_argument('--output', required=True)
     parser.add_argument('--ignore_hidden', required=False, default=True)
     parser.add_argument('--set_name', required=False, default='no-name')
+    parser.add_argument('--log', required=False)
     parsed_args = parser.parse_args()
-
-    logger = logging.getLogger("scanner")
-    logger.info('Initializing')
-    #logger.info('PARAM:ignore_hidden ' + )
 
     # Check params
     scan_path = parsed_args.path
     ignore_hidden = parsed_args.ignore_hidden
     output_path = parsed_args.output
     set_name = parsed_args.set_name
+    log_path = None
+
+    if parsed_args.log:
+        log_path = parsed_args.log
+
+    logging.basicConfig(filename=log_path, level=os.environ.get("LOGLEVEL", "INFO"))
+    logger = logging.getLogger("scanner")
+    #logger.info('PARAM:ignore_hidden ' + )
 
     # Source data downloader
     logger.info('Scanning ' + scan_path)
