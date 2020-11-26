@@ -22,8 +22,6 @@ def scan(parsed_args):
     upload = parsed_args.upload
     log_path = None
 
-    print(upload)
-
     url = parsed_args.url
     usr = parsed_args.usr
     pw = parsed_args.pw

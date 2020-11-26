@@ -22,6 +22,9 @@ class Database:
     def test_connection(self):
         self.logger.info('CouchDB version {0}'.format(self.server.version()))
 
+        self.get_size_summary()
+        #df.info()
+
         # for id in self.db:
         #     print(id)
 
@@ -46,3 +49,15 @@ class Database:
                 'set_name': row['setname']
             }
             self.db.save(doc)
+
+    def get_size_summary(self):
+
+        for item in self.db.view('_design/main'):
+            print(item)
+
+
+        # map_fun = '''function(doc) {
+        #                 if(doc.date && doc.title) {
+        #                     emit(doc.date, doc.title);
+        #                 }
+        #             }'''
