@@ -15,7 +15,7 @@ def get_du_table():
   with open("test_data/du.out", "r") as du_in:
     for line in du_in:
       row = line.strip().split()
-      return_dict[row[-1]] = row[0]
+      return_dict[row[-1].replace("./", "")] = float(row[0])
   return(return_dict)
 
 @app.command("/luslab-du")
@@ -23,14 +23,16 @@ def luslab_du(ack, say, command):
     ack()
     du_table = get_du_table()
     command_arg = command["text"]
-    if command_arg == "all":
-      say(f"{str(du_table)}")
+    if command_arg == "all" or command_arg == "all bysize":
+      du_message = "\n".join([str(t[0]) + "\t" + t[1] for t in sorted([(du_table[key], key) for key in du_table], reverse=True)]) 
+    elif command_arg == "all byname":
+      du_message = "\n".join([key + "\t" + str(du_table[key]) for key in sorted(du_table.keys())])
     elif command_arg in du_table.keys():
-      say(f"{du_table[command_arg]}")
+      du_message = command_arg + "\t" + str(du_table[command_arg])
     else:
-      return_text = ("Invalid argument. Should be either \"all\" or " +
-        str(du_table.keys()))
-      say(f"{return_text}")
+      du_message = ("Invalid argument. Should be either \"all\" or " +
+        "\n".join([key for key in du_table]))
+    say(f"{du_message}")
 
 @app.event("app_home_opened")
 def update_home_tab(client, event, logger):
