@@ -10,9 +10,10 @@ app = App(
 # Handling events
 
 @app.command("/luslab-du")
-def hello(body, ack):
-    user_id = body["user_id"]
-    ack(f"Hi <@{user_id}>!")
+def luslab_du(ack, say, command):
+    # Acknowledge command request
+    ack()
+    say(f"{command['text']}")
 
 @app.event("app_home_opened")
 def update_home_tab(client, event, logger):
