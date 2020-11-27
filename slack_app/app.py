@@ -1,4 +1,5 @@
 import os
+import table_utils
 from slack_bolt import App
 
 # Initializes your app with your bot token and signing secret
@@ -8,6 +9,36 @@ app = App(
 )
 
 # Handling events
+
+@app.command("/luslab-du")
+def luslab_du(ack, say, command):
+    ack()
+    du_table = table_utils.get_du_table()
+    command_arg = command["text"]
+    if command_arg == "all" or command_arg == "all bysize":
+      du_message = "\n".join([table_utils.sizeof_fmt(t[0]) + "\t" + t[1] for t in sorted([(du_table[key], key) for key in du_table], reverse=True)])
+      du_message = table_utils.align_first_col(du_message)
+    elif command_arg == "all byname":
+      du_message = "\n".join([key + "\t" + table_utils.sizeof_fmt(du_table[key]) for key in sorted(du_table.keys())])
+      du_message = table_utils.align_first_col(du_message)
+    elif command_arg in du_table.keys():
+      du_message = command_arg + "\t" + table_utils.sizeof_fmt(du_table[command_arg])
+      du_message = table_utils.align_first_col(du_message)
+    else:
+      du_message = ("Invalid argument. Should be either \"all\" or " +
+        "\n".join([key for key in du_table]))
+    du_message = "/luslab-du " + command_arg + "\n" + du_message
+    say({
+	"blocks": [
+		{
+			"type": "section",
+			"text": {
+				"type": "mrkdwn",
+				"text": "```" + du_message + "```"
+			}
+		}
+	]
+    })
 
 @app.event("app_home_opened")
 def update_home_tab(client, event, logger):
