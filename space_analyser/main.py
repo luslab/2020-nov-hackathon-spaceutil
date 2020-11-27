@@ -31,7 +31,7 @@ def scan(parsed_args):
 
     # Call the scanner
     s = Scanner(logger)
-    df = s.scan(scan_path, ignore_hidden, set_name)
+    df = s.scan(scan_path, ignore_hidden, set_name, True)
     
     # Output to file
     df.to_csv(output_path, index=False)
