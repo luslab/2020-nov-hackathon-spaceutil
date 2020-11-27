@@ -24,7 +24,7 @@ def luslab_du(ack, say, command):
       du_message = command_arg + "\t" + table_utils.sizeof_fmt(du_table[command_arg])
       du_message = table_utils.align_first_col(du_message)
     else:
-      du_message = ("Invalid argument. Should be either \"all\" or " +
+      du_message = ("Invalid argument. Should be one of the following:\nall\nall bysize\nall byname\n" +
         "\n".join([key for key in du_table]))
     du_message = "/luslab-du " + command_arg + "\n" + du_message
     say({

@@ -44,7 +44,7 @@ def get_du_table(root_folder="'/Users/cheshic/dev/repos/TOBIAS'"):
   df = d.get_size_summary(root_folder)
   return_dict = {}
   for row_idx in range(len(df)):
-    return_dict[df.iloc[row_idx]["name"]] = df.iloc[row_idx]["size"]
+    return_dict[df.iloc[row_idx]["file_name"]] = df.iloc[row_idx]["size"]
   return(return_dict)
 
 #OLD / TEMPORARY FUNCTIONS
