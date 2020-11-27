@@ -13,7 +13,10 @@ app = App(
 def luslab_du(ack, say, command):
     ack()
     du_table = table_utils.get_du_table()
-    command_arg = command["text"]
+    if "text" in command:
+      command_arg = command["text"]
+    else:
+      command_arg = ""
     if command_arg == "all" or command_arg == "all bysize":
       du_message = "\n".join([table_utils.sizeof_fmt(t[0]) + "\t" + t[1] for t in sorted([(du_table[key], key) for key in du_table], reverse=True)])
       du_message = table_utils.align_first_col(du_message)
