@@ -142,12 +142,32 @@ class Database:
 
         return df
 
+    # https://stackoverflow.com/a/1094933
+    def sizeof_fmt(num, suffix='B'):
+        for unit in ['K','M','G','T','P','E','Z']:
+            if abs(num) < 1024.0:
+                return "%3.1f%s%s" % (num, unit, suffix)
+            num /= 1024.0
+        return "%.1f%s%s" % (num, 'Y', suffix)
+
     def get_size_summary(self, root):
-        self.logger.info('Requesting size summary')
+        self.logger.info('Requesting size summary for ' + root)
 
         df = self.get_latest_scan_data()
-        df['path'] = df['path'].replace(root,"")
 
-        self.logger.info('Request complete: ' + str(len(df)) + ' items')
+        # Get parent id of the root position
+        root_parent = df.query('path==' + root)['item_id'].iloc[0]
+        
+        # Get all folders with parent of root
+        df_folders = df.query('parent==' + str(root_parent) + ' and is_folder==True')
 
-        return df
+        # Convert sizes
+        #df_folders['size_str'] = df['size'].apply(lambda value: self.sizeof_fmt(int(value)))
+
+        # Subset
+        df_folders = df_folders[['file_name', 'size']]
+        df_folders = df_folders.sort_values(['size'], ascending=[False])
+
+        self.logger.info('Request complete: ' + str(len(df_folders)) + ' items')
+
+        return df_folders

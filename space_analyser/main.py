@@ -103,7 +103,7 @@ def view(args):
     if view == 'scan_hist':
         df = d.get_scan_hist()
     elif view == 'size_summary':
-        df = d.get_size_summary('/Users/cheshic/dev/repos/TOBIAS/')
+        df = d.get_size_summary("'/Users/cheshic/dev/repos/TOBIAS'")
 
     if parsed_args.output is not None:
         logger.info('Writing to ' + parsed_args.output)
