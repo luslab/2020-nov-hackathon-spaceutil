@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-import numpy as np
 import pandas as pd
 from cloudant import couchdb
 from cloudant.view import View
@@ -9,68 +8,146 @@ from uuid import uuid4
 
 class Database:
     def __init__(self, url, username, password, database, logger):
-        # Init
         self.logger = logger
         self.url = url
         self.usr = username
         self.pw = password
         self.db = database
+        self.hist_db = database + '_hist'
 
-    def create_frame(self, docs):
-        df = pd.DataFrame(columns=['_id','_rev','scan_id','path','file_name','size','is_folder','depth','parent','md5','scan_time','elapsed','set_name'])
+    def test_connection(self):
+        self.logger.info('Testing db connection...')
+        self.logger.info('URL: ' + self.url)
+        self.logger.info('USR: ' + self.usr)
+        self.logger.info('PW: ' + self.pw)
+        with couchdb(self.usr, self.pw, url=self.url) as client:
+            self.logger.info('Connected')
+            self.logger.info('Available databases: ' + str(client.all_dbs()))
+
+    def rebuild_server(self):
+        self.logger.info('Rebuilding server...')
+
+        db_name = self.db
+        db_hist_name = self.db + '_hist'
+
+        with couchdb(self.usr, self.pw, url=self.url) as client:
+            db_list = client.all_dbs()
+
+            self.logger.info('Deleting existing databases')
+            if db_name in db_list:
+                client.delete_database(db_name)
+            if db_hist_name in db_list:
+                client.delete_database(db_hist_name)
+
+            self.logger.info('Creating new databases')
+            db = client.create_database(db_name)
+            hist_db = client.create_database(db_hist_name)
+
+            self.logger.info('Verifying new databases')
+            if db.exists():
+                self.logger.info(db_name + ' exists')
+            if hist_db.exists():
+                self.logger.info(db_hist_name + ' exists')
+
+        self.logger.info('Rebuild complete')
+ 
+    def create_doc_from_row(self, row, hist_id):
+        return {
+            '_id': uuid4().hex,
+            'scan_id': hist_id,
+            'item_id': row['id'],
+            'path': row['path'],
+            'file_name': row['name'],
+# #           'ext': row['extension'],
+            'size': row['size'],
+            'is_folder': row['folder'],
+            'depth': row['depth'],
+            'parent': row['parent'],  
+            'md5': row['md5'],
+            'scan_time': row['scantime'],
+            'elapsed': row['elapsed'],
+            'set_name': row['setname']
+        }
+
+    def create_doc_hist_from_row(self, row):
+        return {
+            '_id': uuid4().hex,
+            'scan_time': row['scantime'],
+            'elapsed': row['elapsed']
+        }
+
+    def upload_scan(self, data):
+        self.logger.info('Uploading data...')
+
+        data.fillna("",inplace=True)
+
+        with couchdb(self.usr, self.pw, url=self.url) as client:
+            db = client[self.db]
+            db_hist = client[self.hist_db]
+
+            for index, row in data.iterrows():
+                if index == 0:
+                    doc_hist = self.create_doc_hist_from_row(row)
+                    db_hist.create_document(doc_hist)
+
+                doc = self.create_doc_from_row(row, doc_hist['_id'])
+                db.create_document(doc)
+                
+        self.logger.info('Upload complete')
+
+    def create_scan_items_from_docs(self, docs):
+        df = pd.DataFrame(columns=['_id','_rev','scan_id','item_id','path','file_name','size','is_folder','depth','parent','md5','scan_time','elapsed','set_name'])
         for doc in docs:
             df = df.append(doc, ignore_index=True)
 
         return df
 
-    def test_connection(self):
-        with couchdb(self.usr, self.pw, url=self.url) as client:
-            print(client.all_dbs())
-
-    def upload_scan(self, data):
-        self.logger.info('Uploading data...')
-
-        # iterate and save to db
-        for index, row in data.iterrows():
-            doc = {
-                '_id': uuid4().hex,
-                'scan_id': row['id'],
-                'path': row['path'],
-                'file_name': row['name'],
-#                'ext': row['extension'],
-                'size': row['size'],
-                'is_folder': row['folder'],
-                'depth': row['depth'],
-                'parent': row['parent'],  
-                'md5': row['md5'],
-                'scan_time': row['scantime'],
-                'elapsed': row['elapsed'],
-                'set_name': row['setname']
-            }
-            self.db.save(doc)
-
-    def get_size_summary(self):
-        # Get connection and db
-        with couchdb(self.usr, self.pw, url=self.url) as client:
-            db = client[self.db]
-
-            selector = {'is_folder': {'$eq': True}}
-            docs = db.get_query_result(selector)
-
-            df = self.create_frame(docs)
+    def create_scan_hist_items_from_docs(self, docs):
+        df = pd.DataFrame(columns=['_id','scan_time','elapsed'])
+        for doc in docs:
+            df = df.append(doc, ignore_index=True)
 
         return df
 
-# '_id': 'd7f49ca6c92a49128f00c89558cb065c',
-# '_rev': '1-ab43f47b524c0ed9cf5bbddbfb2f54e9',
-# 'scan_id': 29,
-# 'path': '/Users/cheshic/dev/repos/TOBIAS/tobias/__init__.py',
-# 'file_name': '__init__',
-# 'size': 23,
-# 'is_folder': False, 
-# 'depth': 1,
-# 'parent': 4,
-# 'md5': '0ab6e1ae54ddc1cb0d9c3e42549b1ce4', 
-# 'scan_time': '2020-11-26-15:40:17', 
-# 'elapsed': '00:00:00',
-# 'set_name': 'no-name'
+    def get_all_docs(self, db_name):
+        docs = []
+        with couchdb(self.usr, self.pw, url=self.url) as client:
+            db = client[db_name]
+            for doc in db:
+                docs.append(doc)
+
+        return docs
+
+    def get_docs_from_selector(self, selector):
+        with couchdb(self.usr, self.pw, url=self.url) as client:
+            db = client[self.db]
+            docs = db.get_query_result(selector)
+            df = self.create_scan_items_from_docs(docs)
+            return df
+
+    def get_scan_hist(self):
+        docs = self.get_all_docs(self.hist_db)
+        df = self.create_scan_hist_items_from_docs(docs)
+        df['scan_time']= pd.to_datetime(df['scan_time'])
+        return df
+
+    def get_latest_scan_date(self):
+        df = self.get_scan_hist()
+        return df['scan_time'].max()
+
+    def get_latest_scan_data(self):
+        last_scan = self.get_latest_scan_date()
+        selector = {'scan_time': {'$eq': last_scan.strftime("%Y-%m-%d-%H:%M:%S")}}
+        df = self.get_docs_from_selector(selector)
+
+        return df
+
+    def get_size_summary(self, root):
+        self.logger.info('Requesting size summary')
+
+        df = self.get_latest_scan_data()
+        df['path'] = df['path'].replace(root,"")
+
+        self.logger.info('Request complete: ' + str(len(df)) + ' items')
+
+        return df
