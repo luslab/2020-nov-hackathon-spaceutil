@@ -7,5 +7,7 @@ dependencies:
   - pip
   - python=3.9.0
   - pip:
-    - couchdb
-prefix: /usr/local/Caskroom/miniconda/base/envs/space-util
+    - cloudant==2.14.0
+    - numpy==1.19.4
+    - pandas==1.1.4
+    - python-dateutil==2.8.1
