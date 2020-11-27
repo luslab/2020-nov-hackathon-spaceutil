@@ -9,7 +9,6 @@ app = App(
 )
 
 # Handling events
-
 @app.command("/luslab-du")
 def luslab_du(ack, say, command):
     ack()
