@@ -31,7 +31,7 @@ def scan(parsed_args):
 
     # Call the scanner
     s = Scanner(logger)
-    df = s.scan(scan_path, ignore_hidden, set_name)
+    df = s.scan(scan_path, ignore_hidden, set_name, True)
     
     # Output to file
     df.to_csv(output_path, index=False)
@@ -103,7 +103,7 @@ def view(args):
     if view == 'scan_hist':
         df = d.get_scan_hist()
     elif view == 'size_summary':
-        df = d.get_size_summary("'/Users/cheshic/dev/repos/TOBIAS'")
+        df = d.get_size_summary("'/Users/cheshic/dev/repos/arshamg-scrnaseq-wgan'")
 
     if parsed_args.output is not None:
         logger.info('Writing to ' + parsed_args.output)
