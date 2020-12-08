@@ -50,11 +50,6 @@ This will give you a URL from which your port is available:
 your url is: https://massive-dodo-83.serverless.social
 ```
 
-This URL, with `/slack/events` appended to the end, needs to be copied into your [app's page](https://api.slack.com/apps) in two locations:
-
-1. Event Subscriptions > Request URL
-2. Slash Commands > Edit the command > Request URL
-
 ### Running the Slack app
 
 Set up the conda environment:
@@ -69,3 +64,16 @@ Then run the app with:
 ```
 python slack_app/app.py
 ```
+
+### Configuring the app on Slack's website
+
+The URL from localtunnel, with `/slack/events` appended to the end (e.g. `https://massive-dodo-83.serverless.social/slack/events`), needs to be copied into your [app's page](https://api.slack.com/apps) in two locations.
+
+1. Event Subscriptions > Request URL
+2. Slash Commands > Edit the command > Request URL
+
+Your Slack app should now work.
+
+### Potential errors
+
+If you encounter a `ssl_cacert` error, using `http` rather than `https` in the localtunnel URL seemed to fix things.

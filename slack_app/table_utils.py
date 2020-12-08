@@ -40,7 +40,7 @@ def align_first_col(du_message):
   aligned_du_message = "\n".join(aligned_row_list)
   return(aligned_du_message)
 
-def get_du_table(root_folder="'/Users/cheshic/dev/repos/TOBIAS'"):
+def get_du_table(root_folder="'/Users/cheshic/dev/repos/arshamg-scrnaseq-wgan'"):
   df = d.get_size_summary(root_folder)
   return_dict = {}
   for row_idx in range(len(df)):
