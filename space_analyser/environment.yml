@@ -9,5 +9,4 @@ dependencies:
   - pandas=1.2.*
   - pip
   - pip:
-    - folderstats==0.3.0
     - cloudant==2.14.0

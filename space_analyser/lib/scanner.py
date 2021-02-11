@@ -19,7 +19,7 @@ class Scanner:
         timestamp = datetime.now()
 
         # Scan folders
-        df = folderstats.folderstats(scan_path, hash_name='md5', ignore_hidden=ignore_hidden, verbose=verbose)
+        df = folderstats.folderstats(scan_path, self.logger, hash_name='md5', ignore_hidden=ignore_hidden, verbose=verbose)
 
         # Calc time elapsed
         time_delta = (datetime.now() - timestamp)
