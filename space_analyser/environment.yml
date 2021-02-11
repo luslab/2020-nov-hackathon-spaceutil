@@ -1,36 +1,13 @@
-name: space-util
+name: dev-space-util
 channels:
   - conda-forge
   - bioconda
   - defaults
 dependencies:
-  - ca-certificates=2020.11.8=h033912b_0
-  - certifi=2020.11.8=py39h6e9494a_0
-  - libcxx=11.0.0=h4c3b8ed_1
-  - libffi=3.3=h74dc148_1
-  - ncurses=6.2=h2e338ed_4
-  - openssl=1.1.1h=haf1e3a3_0
-  - pip=20.2.4=py_0
-  - python=3.9.0=h4f09611_5_cpython
-  - python_abi=3.9=1_cp39
-  - readline=8.0=h0678c8f_2
-  - setuptools=49.6.0=py39h2c36a5b_2
-  - sqlite=3.33.0=h960bd1c_1
-  - tk=8.6.10=hb0a8c7a_1
-  - tzdata=2020d=h516909a_0
-  - wheel=0.35.1=pyh9f0ad1d_0
-  - xz=5.2.5=haf1e3a3_1
-  - zlib=1.2.11=h7795811_1010
+  - python=3.9.*
+  - numpy=1.20.*
+  - pandas=1.2.*
+  - pip
   - pip:
-    - chardet==3.0.4
+    - folderstats==0.3.0
     - cloudant==2.14.0
-    - idna==2.10
-    - numpy==1.19.4
-    - pandas==1.1.4
-    - python-dateutil==2.8.1
-    - pytz==2020.4
-    - requests==2.25.0
-    - six==1.15.0
-    - urllib3==1.26.2
-    - slack-bolt==1.0.1
-prefix: /usr/local/Caskroom/miniconda/base/envs/space-util
