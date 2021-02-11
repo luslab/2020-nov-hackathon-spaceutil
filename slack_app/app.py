@@ -85,6 +85,10 @@ def luslab_recommend(ack, say, command):
         }
       )
       if not block["path_str"] == None:
+        # WARNING: This approach, of using the value field, won't work when there are lots of
+        # paths, as there's a character limit of 2000. A better approach would be to pass the
+        # md5, which is then used in the response callback to get the list of paths in another
+        # call to the database
         return_blocks.append(
           {
             "type": "actions",
