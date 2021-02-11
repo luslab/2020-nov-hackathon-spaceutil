@@ -8,8 +8,6 @@
 ## Future plans
 
 1. Provide suggestions for improving storage usage.
-    * Use the MD5 hash of files to determine file duplication
-        * `You and user both have copies of file1.bam totalling 1.5GB. Consider a shared resource`
     * Use the file type to identify files to compress
         * `You have 21 “.bam” files totalling 30GB, which can be compressed by running this command: gzip etc.`
 2. Provide a dashboard to allow for more detailed representations of the data
@@ -41,13 +39,13 @@ conda install nodejs
 Then enable localtunnel:
 
 ```
-npx localtunnel --port 3000 -h 'http://serverless.social'
+npx localtunnel --port 3000
 ```
 
 This will give you a URL from which your port is available:
 
 ```
-your url is: https://massive-dodo-83.serverless.social
+your url is: https://red-swan-46.loca.lt
 ```
 
 ### Running the Slack app
@@ -67,11 +65,14 @@ python slack_app/app.py
 
 ### Configuring the app on Slack's website
 
-The URL from localtunnel, with `/slack/events` appended to the end (e.g. `https://massive-dodo-83.serverless.social/slack/events`), needs to be copied into your [app's page](https://api.slack.com/apps) in two locations.
+The URL from localtunnel, with `/slack/events` appended to the end (e.g. `https://red-swan-46.loca.lt/slack/events`), needs to be copied into your [app's page](https://api.slack.com/apps) in two locations.
 
 1. Event Subscriptions > Request URL
-2. Slash Commands > Edit the command > Request URL
-3. Interactivity & Shortcuts > Request URL
+2. Slash Commands > Edit the command > Request URL (Needs to be done for each slash command)
+
+The URL from localtunnel, with `/slack/interactive` appended to the end (e.g. `https://red-swan-46.loca.lt/slack/interactive`), needs to be copied into your [app's page](https://api.slack.com/apps) in one location.
+
+1. Interactivity & Shortcuts > Request URL
 
 Your Slack app should now work.
 
