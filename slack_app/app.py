@@ -9,12 +9,14 @@ app = App(
 )
 
 # Handling events
-
 @app.command("/luslab-du")
 def luslab_du(ack, say, command):
     ack()
     du_table = table_utils.get_du_table()
-    command_arg = command["text"]
+    if "text" in command:
+      command_arg = command["text"]
+    else:
+      command_arg = ""
     if command_arg == "all" or command_arg == "all bysize":
       du_message = "\n".join([table_utils.sizeof_fmt(t[0]) + "\t" + t[1] for t in sorted([(du_table[key], key) for key in du_table], reverse=True)])
       du_message = table_utils.align_first_col(du_message)
@@ -25,7 +27,7 @@ def luslab_du(ack, say, command):
       du_message = command_arg + "\t" + table_utils.sizeof_fmt(du_table[command_arg])
       du_message = table_utils.align_first_col(du_message)
     else:
-      du_message = ("Invalid argument. Should be either \"all\" or " +
+      du_message = ("Invalid argument. Should be one of the following:\nall\nall bysize\nall byname\n" +
         "\n".join([key for key in du_table]))
     du_message = "/luslab-du " + command_arg + "\n" + du_message
     say({

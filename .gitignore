@@ -3,5 +3,6 @@ slack_app/.venv/lib/
 slack_app/.venv/include/
 slack_app/__pycache__/
 .DS_Store
-
 *.pyc
+.vscode/
+env_variables.sh
