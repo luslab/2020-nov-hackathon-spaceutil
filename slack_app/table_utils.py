@@ -47,6 +47,32 @@ def align_first_col(du_message):
 #     return_dict[df.iloc[row_idx]["file_name"]] = df.iloc[row_idx]["size"]
 #   return(return_dict)
 
+def get_top_n_dup_md5(n=1):
+  data_table = read_data_frame()
+  count_dict = {}
+  size_dict = {}
+  for index, row in data_table.iterrows():
+    if pd.notna(row["md5"]):
+      count_dict.setdefault(row["md5"], 0)
+      count_dict[row["md5"]] += 1
+      size_dict.setdefault(row["md5"], row["size"])
+  count_table = pd.DataFrame({
+    "md5": count_dict.keys(),
+    "count": count_dict.values(),
+    "size": [size_dict[md5] for md5 in count_dict.keys()]
+  })
+  # Assumes deleting all but one copy of the file
+  count_table["potential_saving"] = count_table["size"] * (count_table["count"] - 1)
+  top_n_count_table = count_table.sort_values("potential_saving", ascending=False)[0:n]
+  return_list = []
+  for index, row in top_n_count_table.iterrows():
+    row_dict = row.to_dict()
+    data_table_subset = data_table.loc[data_table["md5"] == row["md5"]]
+    row_dict["paths"] = list(data_table_subset["path"])
+    row_dict["names"] = list(set(data_table_subset["name"]))
+    return_list.append(row_dict)
+  return(return_list)
+
 #OLD / TEMPORARY FUNCTIONS
 def read_data_frame():
   return(pd.read_csv("slack_app/test_data/test-set-2.csv"))
