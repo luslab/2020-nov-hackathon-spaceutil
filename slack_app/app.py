@@ -42,6 +42,36 @@ def luslab_du(ack, say, command):
 	]
     })
 
+@app.command("/luslab-recommend")
+def luslab_recommend(ack, say, command):
+    ack()
+    valid_argument = True
+    if "text" in command:
+      command_arg = command["text"]
+    else:
+      valid_argument = False
+      command_arg = ""
+    try:
+      int(command_arg)
+    except ValueError:
+      valid_argument = False
+    if valid_argument:
+      blocks = table_utils.get_pretty_recommentations(int(command_arg))
+    else:
+      blocks = ["No argument or non-integer argument"]
+    blocks = ["```/luslab-recommend " + command_arg + "```"] + blocks
+    say({
+	"blocks": [
+		{
+			"type": "section",
+			"text": {
+				"type": "mrkdwn",
+				"text": block
+			}
+		} for block in blocks
+	]
+    })
+
 @app.event("app_home_opened")
 def update_home_tab(client, event, logger):
   try:

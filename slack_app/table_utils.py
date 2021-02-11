@@ -69,9 +69,32 @@ def get_top_n_dup_md5(n=1):
     row_dict = row.to_dict()
     data_table_subset = data_table.loc[data_table["md5"] == row["md5"]]
     row_dict["paths"] = list(data_table_subset["path"])
-    row_dict["names"] = list(set(data_table_subset["name"]))
+    row_dict["names"] = list(set(data_table_subset["name"] + "." + data_table_subset["extension"]))
     return_list.append(row_dict)
   return(return_list)
+
+def get_pretty_recommentations(n=1):
+  info = get_top_n_dup_md5(n)
+  blocks = []
+  for idx, rec_dict in enumerate(info):
+    return_str = ""
+    return_str += (
+      "*Top {rank} Recommendation*\n"
+      "A file with the name(s) {names} "
+      "is present {count} times and takes up {size} disk space each.\n"
+      "Using a single, shared resource would save {potential_saving}.\n"
+      "The paths to these files are:\n"
+    ).format(
+      rank=idx+1,
+      names='/'.join(["`{name}`".format(name=name) for name in rec_dict["names"]]),
+      count=rec_dict["count"],
+      size=sizeof_fmt(rec_dict["size"]),
+      potential_saving=sizeof_fmt(rec_dict["potential_saving"])
+    )
+    for path in rec_dict["paths"]:
+      return_str += "• `{path}`\n".format(path=path)
+    blocks.append(return_str)
+  return(blocks)
 
 #OLD / TEMPORARY FUNCTIONS
 def read_data_frame():
