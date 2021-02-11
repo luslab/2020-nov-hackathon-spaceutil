@@ -33,4 +33,5 @@ dependencies:
     - six==1.15.0
     - urllib3==1.26.2
     - slack-bolt==1.0.1
+    - Flask==1.1.2
 prefix: /usr/local/Caskroom/miniconda/base/envs/space-util

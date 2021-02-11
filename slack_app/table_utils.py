@@ -77,8 +77,8 @@ def get_pretty_recommentations(n=1):
   info = get_top_n_dup_md5(n)
   blocks = []
   for idx, rec_dict in enumerate(info):
-    return_str = ""
-    return_str += (
+    blurb_str = ""
+    blurb_str += (
       "*Top {rank} Recommendation*\n"
       "A file with the name(s) {names} "
       "is present {count} times and takes up {size} disk space each.\n"
@@ -91,9 +91,13 @@ def get_pretty_recommentations(n=1):
       size=sizeof_fmt(rec_dict["size"]),
       potential_saving=sizeof_fmt(rec_dict["potential_saving"])
     )
+    path_str = "```#paths to {names}\n".format(
+      names='/'.join(["{name}".format(name=name) for name in rec_dict["names"]])
+    )
     for path in rec_dict["paths"]:
-      return_str += "• `{path}`\n".format(path=path)
-    blocks.append(return_str)
+      path_str += "{path}\n".format(path=path)
+    path_str += "```"
+    blocks.append({"blurb_str": blurb_str, "path_str": path_str})
   return(blocks)
 
 #OLD / TEMPORARY FUNCTIONS

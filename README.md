@@ -71,6 +71,7 @@ The URL from localtunnel, with `/slack/events` appended to the end (e.g. `https:
 
 1. Event Subscriptions > Request URL
 2. Slash Commands > Edit the command > Request URL
+3. Interactivity & Shortcuts > Request URL
 
 Your Slack app should now work.
 

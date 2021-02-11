@@ -1,6 +1,9 @@
 import os
 import table_utils
 from slack_bolt import App
+from flask import Flask, request, make_response, Response
+
+flask_app = Flask(__name__)
 
 # Initializes your app with your bot token and signing secret
 app = App(
@@ -58,18 +61,62 @@ def luslab_recommend(ack, say, command):
     if valid_argument:
       blocks = table_utils.get_pretty_recommentations(int(command_arg))
     else:
-      blocks = ["No argument or non-integer argument"]
-    blocks = ["```/luslab-recommend " + command_arg + "```"] + blocks
+      blocks = [
+        {
+          "blurb_str": "No argument or non-integer argument",
+          "path_str": None
+        }
+      ]
+    blocks = [
+      {
+        "blurb_str": "```/luslab-recommend " + command_arg + "```",
+        "path_str": None
+      }
+    ] + blocks
+    return_blocks = []
+    for block in blocks:
+      return_blocks.append(
+        {
+          "type": "section",
+          "text": {
+            "type": "mrkdwn",
+            "text": block["blurb_str"]
+          }
+        }
+      )
+      if not block["path_str"] == None:
+        return_blocks.append(
+          {
+            "type": "actions",
+            "elements": [
+              {
+                "type": "button",
+                "text": {
+                  "type": "plain_text",
+                  "text": "Click for file paths"
+                },
+                "value": block["path_str"],
+                "action_id": "path_button"
+              }
+            ]
+          }
+        )
+    say({"blocks": return_blocks})
+
+@app.action("path_button")
+def approve_request(ack, body, say):
+    # Acknowledge action request
+    ack()
     say({
-	"blocks": [
-		{
-			"type": "section",
-			"text": {
-				"type": "mrkdwn",
-				"text": block
-			}
-		} for block in blocks
-	]
+      "blocks": [
+        {
+          "type": "section",
+          "text": {
+            "type": "mrkdwn",
+            "text": body["actions"][0]["value"]
+          }
+        }
+      ]
     })
 
 @app.event("app_home_opened")
@@ -122,6 +169,21 @@ def update_home_tab(client, event, logger):
   except Exception as e:
     logger.error(f"Error opening modal: {e}")
 
-# Start your app
+# SlackRequestHandler translates WSGI requests to Bolt's interface
+# and builds WSGI response from Bolt's response.
+from slack_bolt.adapter.flask import SlackRequestHandler
+handler = SlackRequestHandler(app)
+
+# Register routes to Flask app
+@flask_app.route("/slack/events", methods=["POST"])
+def slack_events():
+  # handler runs App's dispatch method
+  return handler.handle(request)
+
+@flask_app.route("/slack/interactive", methods=["POST"])
+def slack_interactive():
+  # handler runs App's dispatch method
+  return handler.handle(request)
+
 if __name__ == "__main__":
-    app.start(port=int(os.environ.get("PORT", 3000)))
+  flask_app.run(port=3000)
