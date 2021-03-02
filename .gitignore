@@ -2,6 +2,7 @@ slack_app/.venv/bin/
 slack_app/.venv/lib/
 slack_app/.venv/include/
 slack_app/__pycache__/
+dashboard/plots/
 .DS_Store
 *.pyc
 .vscode/

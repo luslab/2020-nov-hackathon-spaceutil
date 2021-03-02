@@ -4,9 +4,9 @@
 import os
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
-from matplotlib.backends.backend_pdf import PdfPages
-import seaborn as sb
+#import matplotlib.pyplot as plt
+#from matplotlib.backends.backend_pdf import PdfPages
+#import seaborn as sb
 import plotly.express as px
 
 class Figures:
@@ -19,30 +19,32 @@ class Figures:
     def load_data(self):
         self.data_table = pd.read_csv(self.data_path, sep=',')
 
-
     def annotate_data(self):
-        # Make new perctenage alignment columns
-        self.data_table['target_alignment_rate'] = self.data_table.loc[:, ('bt2_total_aligned_target')] / self.data_table.loc[:, ('bt2_total_reads_target')] * 100
-        self.data_table['spikein_alignment_rate'] = self.data_table.loc[:, ('bt2_total_aligned_spikein')] / self.data_table.loc[:, ('bt2_total_reads_spikein')] * 100
+        # Make a column with parent names
+        self.data_table['parent_name'] = -1
+        for parent_id in self.data_table['parent']:
+            #get_name = lambda row: df.loc[row['parent']]['name']
+            #df['parent_name']= df.apply(get_name, axis=1)
+            self.data_table.loc[self.data_table['parent'] == parent_id, 'parent_name'] = pd.Series.to_string(self.data_table.loc[self.data_table['id'] ==  parent_id, 'name']).split()[1]
         # self.data_table.describe()
-        # print(self.data_table)
+        #print(self.data_table[['id', 'name', 'parent', 'parent_name']].head(20))
         # self.data_table.info()
 
-    def generate_plots(self):
-        # Init
-        plots = dict()
-        data = dict()
+    # def generate_plots(self, output_path):
+    #     # Init
+    #     plots = dict()
+    #     data = dict()
 
-        # Get Data
-        self.load_data()
-        self.annotate_data()
+    #     # Get Data
+    #     self.load_data()
+    #     self.annotate_data()
 
-        # Plot 1
-        plot1, data1 = self.alignment_summary()
-        plots["alignment_summary"] = plot1
-        data["alignment_summary"] = data1
+    #     # Plot 1
+    #     plot1, data1 = self.tree_map(output_path)
+    #     plots["tree_map"] = plot1
+    #     data["tree_map"] = data1
 
-        return (plots, data)
+    #     return (plots, data)
 
     def generate_dash_plots(self):
         # Init
@@ -54,19 +56,19 @@ class Figures:
         self.annotate_data()
 
         # Plot 1
-        plot1, data1 = self.alignment_summary_ex()
-        plots["alignment_summary"] = plot1
-        data["alignment_summary"] = data1
+        plot1, data1 = self.tree_map()
+        plots["tree_map"] = plot1
+        data["tree_map"] = data1
 
         return (plots, data)
 
     def gen_plots_to_folder(self, output_path):
         # Init
-        sb.set_theme()
+        #sb.set_theme()
         abs_path = os.path.abspath(output_path)
 
         # Get plots and supporting data tables
-        plots, data = self.generate_plots()
+        plots, data = self.generate_dash_plots(output_path)
 
         # Save data to output folder
         for key in data:
@@ -74,12 +76,12 @@ class Figures:
             plots[key].savefig(os.path.join(abs_path, key + '.png'))
 
         # Save pdf of the plots
-        self.gen_pdf(abs_path, plots)
+        #self.gen_pdf(abs_path, plots)
 
-    def gen_pdf(self, output_path, plots):
-        with PdfPages(os.path.join(output_path, 'report.pdf')) as pdf:
-            for key in plots:
-                pdf.savefig(plots[key])
+    # def gen_pdf(self, output_path, plots):
+    #     with PdfPages(os.path.join(output_path, 'report.pdf')) as pdf:
+    #         for key in plots:
+    #             pdf.savefig(plots[key])
 
             # # We can also set the file's metadata via the PdfPages object:
             # d = pdf.infodict()
@@ -93,43 +95,15 @@ class Figures:
     ##### PLOTS #####
 
     # ---------- Plot 1 - Alignment Summary --------- #
-    def alignment_summary(self):
+    def tree_map(self):
         # Subset data 
-        df_data = self.data_table.loc[:, ('id', 'group', 'bt2_total_reads_target', 'bt2_total_aligned_target', 'target_alignment_rate', 'spikein_alignment_rate')]
+        df_data = self.data_table[1:33]
 
-        ## Construct quad plot
-        fig, seq_summary = plt.subplots(2,2)
-        fig.suptitle("Sequencing and Alignment Summary")
+        fig = px.treemap(names = df_data["name"],
+                         parents = df_data["parent_name"])
 
-        # Seq depth
-        sb.boxplot(data=df_data, x='group', y='bt2_total_reads_target', order=['h3k27me3', 'h3k4me3', 'igg'], ax=seq_summary[0,0])
-        seq_summary[0,0].set_title("Sequencing Depth")
-        seq_summary[0,0].set_ylabel("Total Reads")
-
-        # Alignable fragments
-        sb.boxplot(data=df_data, x='group', y='bt2_total_aligned_target', order=['h3k27me3', 'h3k4me3', 'igg'], ax=seq_summary[0,1])
-        seq_summary[0,1].set_title("Alignable Fragments")
-        seq_summary[0,1].set_ylabel("Total Aligned Reads")
-
-        # Alignment rate hg38
-        sb.boxplot(data=df_data, x='group', y='target_alignment_rate', order=['h3k27me3', 'h3k4me3', 'igg'], ax=seq_summary[1,0])
-        seq_summary[1,0].set_title("Alignment Rate (hg38)")
-        seq_summary[1,0].set_ylabel("Percent of Fragments Aligned")
-
-        # Alignment rate e.coli
-        sb.boxplot(data=df_data, x='group', y='spikein_alignment_rate', order=['h3k27me3', 'h3k4me3', 'igg'], ax=seq_summary[1,1])
-        seq_summary[1,1].set_title("Alignment Rate (e.coli)")
-        seq_summary[1,1].set_ylabel("Percent of Fragments Aligned")
-
-        plt.subplots_adjust(wspace=0.5, hspace=0.5)
-        
-        return fig, df_data
-
-    def alignment_summary_ex(self):
-        # Subset data 
-        df_data = self.data_table.loc[:, ('id', 'group', 'bt2_total_reads_target', 'bt2_total_aligned_target', 'target_alignment_rate', 'spikein_alignment_rate')]
-
-        fig = px.box(df_data, x="group", y="bt2_total_reads_target")
+        #abs_path = os.path.abspath(output_path)
+        #fig.write_image(os.path.join(abs_path, 'tree_map' + '.png'))
 
         return fig, df_data
 

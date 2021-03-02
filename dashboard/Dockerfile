@@ -13,7 +13,7 @@ ENV PATH /opt/conda/envs/dash/bin:$PATH
 
 # copy files over
 COPY ./app.py /app/app.py
-
+COPY ./lib /app/lib
 ENV DASH_DEBUG_MODE True
 WORKDIR /app
 EXPOSE 8050
